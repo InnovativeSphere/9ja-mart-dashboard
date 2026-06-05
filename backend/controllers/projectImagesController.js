@@ -1,5 +1,4 @@
-// controllers/projectImagesController.js
-import db from "../../pages/lib/db";
+import db from "../db";
 
 const ProjectImagesController = {
   // ADD images (single or multiple) to a project

@@ -1,25 +1,18 @@
 "use client";
 
 import Link from "next/link";
-import Image from "next/image";
-import { usePathname } from "next/navigation";
-import { useDispatch } from "react-redux";
-import { AppDispatch } from "../redux/store";
+import { usePathname, useRouter } from "next/navigation";
 import {
-  HomeIcon,
-  UserGroupIcon,
-  PhotoIcon,
-  ClipboardIcon,
-  GiftIcon,
-  Bars3Icon,
-  XMarkIcon,
-  UserIcon,
-  WindowIcon,
-} from "@heroicons/react/24/outline";
-import { logoutUser } from "../redux/slices/authSlice";
-import { useRouter } from "next/navigation";
-import { FaAmericanSignLanguageInterpreting } from "react-icons/fa";
-import { Users } from "lucide-react";
+  LayoutDashboard,
+  Package,
+  ShoppingCart,
+  Users,
+  TrendingUp,
+  Settings,
+  LogOut,
+  Store,
+  BarChart3,
+} from "lucide-react";
 
 interface SidebarProps {
   collapsed: boolean;
@@ -27,100 +20,90 @@ interface SidebarProps {
 }
 
 const navItems = [
-  { name: "Dashboard", href: "/dashboard", icon: HomeIcon },
-  { name: "Donations", href: "/donations", icon: GiftIcon },
-  { name: "Projects", href: "/projects", icon: ClipboardIcon },
-  { name: "Photos", href: "/photos", icon: PhotoIcon },
-  { name: "Supervisors", href: "/supervisors", icon: UserGroupIcon },
-  { name: "Volunteers", href: "/volunteers", icon: UserGroupIcon },
-  { name: "Profile", href: "/profile", icon: UserIcon },
-  {
-    name: "Register",
-    href: "/signup",
-    icon: FaAmericanSignLanguageInterpreting,
-  },
-  { name: "Category", href: "/categories", icon: WindowIcon },
-  { name: "Partners", href: "/partners", icon: Users },
+  { name: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
+  { name: "Products", href: "/products", icon: Package },
+  { name: "Orders", href: "/orders", icon: ShoppingCart },
+  { name: "Sellers", href: "/sellers", icon: Store },
+  { name: "Buyers", href: "/buyers", icon: Users },
+  { name: "Transactions", href: "/transactions", icon: TrendingUp },
+  { name: "Analytics", href: "/analytics", icon: BarChart3 },
+  { name: "Settings", href: "/settings", icon: Settings },
 ];
 
 export default function Sidebar({ collapsed, setCollapsed }: SidebarProps) {
   const pathname = usePathname();
-  const dispatch = useDispatch<AppDispatch>();
   const router = useRouter();
 
   return (
     <aside
-      className={`
-        fixed top-0 left-0 h-screen bg-[var(--color-black)] text-[var(--color-white)]
-        flex flex-col transition-all duration-500 z-50
-        ${collapsed ? "w-16" : "w-64"}
-      `}
+      className={`fixed top-0 left-0 h-screen flex flex-col transition-all duration-500 z-50
+        ${collapsed ? "w-[72px]" : "w-64"}
+        bg-[#0a2742]/95 backdrop-blur-xl border-r border-[#29b6d8]/20`}
     >
       {/* Header */}
-      <div className="h-16 flex items-center justify-between px-4 border-b border-[var(--color-gray)]">
+      <div className="h-16 flex items-center justify-between px-4 border-b border-[#29b6d8]/10">
         {!collapsed && (
           <div className="flex items-center gap-2">
-            <Image
-              src="/jewel-foundation-logo.png"
-              alt="jewel-foundation Logo"
-              width={100}
-              height={70}
-              className="object-contain my-2"
-            />
-            <span className="font-bold text-[var(--color-base)] text-sm tracking-wide">
-             {/* Jewel Foundation */}
+            <div className="w-9 h-9 rounded-lg bg-gradient-to-br from-[#29b6d8] to-[#3ec8e6] flex items-center justify-center text-white font-extrabold text-lg flex-shrink-0">
+              9
+            </div>
+            <span className="font-bold text-white text-lg whitespace-nowrap">
+              9jaMart
             </span>
           </div>
         )}
-
         <button
           onClick={() => setCollapsed(!collapsed)}
-          className="p-2 hover:bg-[var(--color-gray)] rounded-lg transition-all duration-300"
+          className="p-1.5 rounded-md text-white/60 hover:text-white hover:bg-white/10 transition-colors duration-300"
+          aria-label={collapsed ? "Expand sidebar" : "Collapse sidebar"}
         >
-          {collapsed ? (
-            <Bars3Icon className="w-6 h-6 text-[var(--color-base)]" />
-          ) : (
-            <XMarkIcon className="w-6 h-6 text-[var(--color-base)]" />
-          )}
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            {collapsed ? (
+              <path d="M9 18l6-6-6-6" />
+            ) : (
+              <path d="M15 18l-6-6 6-6" />
+            )}
+          </svg>
         </button>
       </div>
 
-      {/* Navigation Links */}
-      <nav className="flex-1 p-3 space-y-2">
-        {navItems.map((item) => (
-          <Link
-            key={item.name}
-            href={item.href}
-            className={`
-              flex items-center gap-3 p-2 rounded-lg text-sm font-medium
-              text-white
-              transition-all duration-300
-              ${
-                pathname === item.href
-                  ? "bg-[var(--color-secondary)] shadow-md"
-                  : "bg-transparent hover:bg-[var(--color-base)]/30"
-              }
-            `}
-          >
-            <item.icon className="w-5 h-5 text-white transition-colors duration-300" />
-            {!collapsed && (
-              <span className="truncate text-white">{item.name}</span>
-            )}
-          </Link>
-        ))}
+      {/* Navigation */}
+      <nav className="flex-1 px-2 py-4 space-y-1 overflow-y-auto">
+        {navItems.map((item) => {
+          const isActive = pathname === item.href;
+          return (
+            <Link
+              key={item.name}
+              href={item.href}
+              className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-300 whitespace-nowrap
+                ${isActive
+                  ? "bg-gradient-to-r from-[#29b6d8]/25 to-[#3ec8e6]/10 text-[#29b6d8]"
+                  : "text-white/80 hover:bg-white/10 hover:text-white"
+                }
+              `}
+            >
+              <span className="w-6 h-6 flex items-center justify-center flex-shrink-0">
+                <item.icon size={20} />
+              </span>
+              <span className={`${collapsed ? "hidden" : "block"}`}>
+                {item.name}
+              </span>
+              {isActive && !collapsed && (
+                <span className="ml-auto w-1.5 h-1.5 rounded-full bg-[#29b6d8]" />
+              )}
+            </Link>
+          );
+        })}
       </nav>
 
       {/* Logout */}
-      <div className="p-3 border-t border-[var(--color-gray)]">
+      <div className="px-2 py-3 border-t border-[#29b6d8]/10">
         <button
-          onClick={async () => {
-            await dispatch(logoutUser());
-            router.push("/");
-          }}
-          className="w-full bg-[var(--color-base)] hover:bg-red-500 p-2 rounded-lg transition-all duration-300 text-sm font-medium flex items-center justify-center gap-2"
+          onClick={() => router.push("/")}
+          className="flex items-center justify-center gap-2 w-full px-3 py-2.5 rounded-lg text-white/80 bg-white/5 border border-white/10 hover:bg-red-500/20 hover:text-red-400 hover:border-red-500/30 transition-all duration-300 text-sm font-medium"
         >
-          {!collapsed && "Logout"}
-          {!collapsed && <XMarkIcon className="w-4 h-4 text-white" />}
+          <LogOut size={18} />
+          <span className={`${collapsed ? "hidden" : "block"}`}>Logout</span>
         </button>
       </div>
     </aside>

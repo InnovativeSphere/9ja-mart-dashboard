@@ -19,8 +19,8 @@ export default function Layout({ children }: { children: React.ReactNode }) {
 
       <main
         className={`
-          pt-16 transition-all duration-500
-          ${sidebarCollapsed ? "ml-20 mr-5" : "ml-70 mr-5"}
+          pt-16 transition-all duration-300
+          ${sidebarCollapsed ? "ml-[72px]" : "ml-[250px]"}
         `}
       >
         {children}

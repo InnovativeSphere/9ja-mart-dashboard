@@ -1,5 +1,5 @@
-// controllers/donationsController.js
-import db from "../../pages/lib/db"; // your MySQL connection
+import db from "../db";
+
 
 const DonationsController = {
   // ADD a new donation

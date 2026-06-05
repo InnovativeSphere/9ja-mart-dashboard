@@ -1,4 +1,4 @@
-import db from "../../pages/lib/db";
+import db from "../db";
 
 const ProjectsController = {
   // CREATE a new project

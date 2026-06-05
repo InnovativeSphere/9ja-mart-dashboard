@@ -1,113 +1,114 @@
 "use client";
 
 import Link from "next/link";
-import Image from "next/image";
+import {
+  LayoutDashboard,
+  Package,
+  ShoppingCart,
+  Users,
+  TrendingUp,
+  Settings,
+  Store,
+  BarChart3,
+  ArrowUpDown,
+  Facebook,
+  Twitter,
+  Instagram,
+  Linkedin,
+} from "lucide-react";
 
 const Footer = () => {
+  const currentYear = new Date().getFullYear();
+
+  const quickLinks = [
+    { name: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
+    { name: "Products", href: "/products", icon: Package },
+    { name: "Orders", href: "/orders", icon: ShoppingCart },
+    { name: "Sellers", href: "/sellers", icon: Store },
+    { name: "Buyers", href: "/buyers", icon: Users },
+    { name: "Transactions", href: "/transactions", icon: ArrowUpDown },
+    { name: "Analytics", href: "/analytics", icon: BarChart3 },
+    { name: "Settings", href: "/settings", icon: Settings },
+  ];
+
   return (
-    <footer className=" mt-24 text-white px-6 py-10">
-      <div className="max-w-330 mx-auto grid md:grid-cols-3 gap-8">
-        {/* Brand / About */}
-        <div className="flex flex-col items-start">
-          <div className="flex items-center gap-2 mb-3">
-            <Image
-                   src="/jewel-foundation-logo.png"
-              alt="jewel-foundation Logo"
-              width={100}
-              height={70}
-              className="object-contain my-2"
-            />
-            <h4 className="font-heading text-xl text-[var(--color-base)]">
-             Jewel Foundation
-            </h4>
+    <footer className="footer-wrapper">
+      <div className="max-w-7xl mx-auto px-6 py-12">
+        <div className="grid md:grid-cols-3 gap-8">
+          {/* Brand */}
+          <div>
+            <div className="flex items-center gap-3 mb-4">
+              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#29b6d8] to-[#3ec8e6] flex items-center justify-center text-white font-extrabold text-lg">
+                9
+              </div>
+              <h4 className="text-xl font-bold text-white">9jaMart</h4>
+            </div>
+            <p className="text-sm text-white/80 leading-7">
+              The admin dashboard for Nigeria’s fastest‑growing digital marketplace. Manage products, orders, sellers, and more — all in one place.
+            </p>
           </div>
-          <p className="font-body text-[var(--color-gray)] leading-7">
-            Making an impact, one donation at a time. Your support drives
-            meaningful change and helps communities thrive.
-          </p>
-        </div>
 
-        {/* Quick Links */}
-        <div>
-          <h4 className="font-heading text-xl text-[var(--color-base)] mb-4">
-            Quick Links
-          </h4>
-          <ul className="space-y-2">
-            {[
-              { name: "Dashboard", href: "/dashboard" },
-              { name: "Projects", href: "/projects" },
-              { name: "Donations", href: "/donations" },
-              { name: "Profile", href: "/profile" },
-            ].map((link) => (
-              <li key={link.href}>
-                <Link
-                  href={link.href}
-                  className="hover:text-[var(--color-base)] transition-colors duration-300"
+          {/* Quick Links */}
+          <div>
+            <h4 className="text-lg font-semibold text-white mb-4">Quick Links</h4>
+            <ul className="space-y-2">
+              {quickLinks.map((link) => (
+                <li key={link.href}>
+                  <Link
+                    href={link.href}
+                    className="flex items-center gap-2 text-sm text-white/80 hover:text-[#29b6d8] transition-colors duration-300"
+                  >
+                    <link.icon size={16} className="text-[#29b6d8]/70 group-hover:text-[#29b6d8]" />
+                    {link.name}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          {/* Contact & Social */}
+          <div>
+            <h4 className="text-lg font-semibold text-white mb-4">Contact</h4>
+            <ul className="space-y-2 text-sm text-white/80">
+              <li>Email: hello@9jamart.ng</li>
+              <li>Phone: +234 800 000 0000</li>
+              <li>Lagos, Nigeria</li>
+            </ul>
+            <div className="flex mt-4 gap-3">
+              {[
+                { href: "https://facebook.com", icon: Facebook },
+                { href: "https://twitter.com", icon: Twitter },
+                { href: "https://instagram.com", icon: Instagram },
+                { href: "https://linkedin.com", icon: Linkedin },
+              ].map((social, idx) => (
+                <a
+                  key={idx}
+                  href={social.href}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="w-9 h-9 flex items-center justify-center rounded-full bg-[#29b6d8]/10 border border-[#29b6d8]/20 text-[#29b6d8] hover:bg-[#29b6d8]/30 hover:border-[#29b6d8]/50 hover:text-white transition-all duration-300"
                 >
-                  {link.name}
-                </Link>
-              </li>
-            ))}
-          </ul>
-        </div>
-
-        {/* Contact / Social */}
-        <div>
-          <h4 className="font-heading text-xl text-[var(--color-base)] mb-4">
-            Contact
-          </h4>
-          <ul className="space-y-2 font-body text-[var(--color-gray)]">
-            <li>
-              Email:{" "}
-              <Link
-                href="mailto:info@rayyanaid.org"
-                className="hover:text-[var(--color-base)] transition-colors duration-300"
-              >
-                info@jewelfoundation.org
-              </Link>
-            </li>
-            <li>
-              Phone:{" "}
-              <Link
-                href="tel:07063653772"
-                className="hover:text-[var(--color-base)] transition-colors duration-300"
-              >
-                +234 800 000 0000
-              </Link>
-            </li>
-            <li>
-              Address: Braverock Park Behind Ministry of Women Affairs Gombe
-              State
-            </li>
-          </ul>
-          <div className="flex mt-4 space-x-4">
-            {[
-              { href: "https://twitter.com/rayyanaid", icon: "fab fa-twitter" },
-              {
-                href: "https://facebook.com/rayyanaid",
-                icon: "fab fa-facebook",
-              },
-              {
-                href: "https://instagram.com/rayyanaid",
-                icon: "fab fa-instagram",
-              },
-            ].map((social) => (
-              <Link
-                key={social.href}
-                href={social.href}
-                target="_blank"
-                className="w-9 h-9 flex items-center justify-center rounded-full bg-[var(--color-white)]/10 text-[var(--color-white)] hover:bg-[var(--color-base)] transition-all duration-300"
-              >
-                <i className={social.icon}></i>
-              </Link>
-            ))}
+                  <social.icon size={16} />
+                </a>
+              ))}
+            </div>
           </div>
         </div>
+
+        <div className="mt-10 pt-6 border-t border-[#29b6d8]/20 text-center text-sm text-white/60">
+          &copy; {currentYear} 9jaMart. All rights reserved.
+        </div>
       </div>
 
-      <div className="mt-10 border-t border-[var(--color-white)]/20 pt-6 text-center font-body text-[var(--color-gray)] text-sm">
-        &copy; {new Date().getFullYear()}    Jewel Foundation. All rights reserved.
-      </div>
+      <style jsx>{`
+        .footer-wrapper {
+          background: rgba(10, 39, 66, 0.9);
+          backdrop-filter: blur(20px);
+          -webkit-backdrop-filter: blur(20px);
+          border-top: 2px solid;
+          border-image: linear-gradient(90deg, #29b6d8, #3ec8e6, #29b6d8) 1;
+        }
+      `}</style>
     </footer>
   );
 };

@@ -1,4 +1,5 @@
-import db from "../../pages/lib/db";
+import db from "../db";
+
 
 const PeopleController = {
   // CREATE a new person

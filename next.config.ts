@@ -1,10 +1,9 @@
-import type { NextConfig } from "next";
-
-const nextConfig: NextConfig = {
-images: {
-    domains: ["picsum.photos"], 
-  }
+/** @type {import('next').NextConfig} */
+const nextConfig = {
+  turbopack: false, // disables Turbopack
+  images: {
+    domains: ["picsum.photos"],
+  },
 };
 
-export default nextConfig;
-
+module.exports = nextConfig;

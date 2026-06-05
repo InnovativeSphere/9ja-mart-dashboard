@@ -1,5 +1,5 @@
-// controllers/partnersController.js
-import db from "../../pages/lib/db";
+import db from "../db";
+
 
 const PartnersController = {
   // ADD a new partner

@@ -1,5 +1,5 @@
-// controllers/userController.js
-import db from "../../pages/lib/db";
+
+import db from "../db";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 

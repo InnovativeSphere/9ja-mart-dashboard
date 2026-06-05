@@ -1,4 +1,5 @@
-import db from "../../pages/lib/db";
+import db from "../db";
+
 
 const CategoriesController = {
   // CREATE a new category
