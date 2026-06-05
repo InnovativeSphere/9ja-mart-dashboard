@@ -4,7 +4,7 @@ import {
   createCategory,
   updateCategory,
   deleteCategory,
-} from "../../pages/lib/api";
+} from "../../lib/api";
 
 // ---------------- TYPES ----------------
 

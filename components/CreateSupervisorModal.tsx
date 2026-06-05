@@ -4,7 +4,7 @@ import { useState } from "react";
 import { useDispatch } from "react-redux";
 import { AppDispatch } from "../redux/store";
 import { createPerson } from "../redux/slices/peopleSlice";
-import { uploadImage } from "../pages/lib/api";
+import { uploadImage } from "../lib/api";
 import { Upload, X } from "lucide-react";
 import Loader from "./Loader";
 

@@ -1,5 +1,5 @@
 import { createSlice, createAsyncThunk, PayloadAction } from "@reduxjs/toolkit";
-import * as api from "../../pages/lib/api";
+import * as api from "../../lib/api";
 
 export type PartnerImageType = "jewel_foundation_partner_logo";
 

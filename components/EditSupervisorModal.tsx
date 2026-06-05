@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import { useDispatch } from "react-redux";
 import { AppDispatch } from "../redux/store";
 import { updatePerson, deletePerson, Person } from "../redux/slices/peopleSlice";
-import { uploadImage } from "../pages/lib/api";
+import { uploadImage } from "../lib/api";
 import { Upload, X, Image } from "lucide-react";
 
 interface EditSupervisorModalProps {

@@ -1,5 +1,5 @@
 import { createSlice, createAsyncThunk, PayloadAction } from "@reduxjs/toolkit";
-import * as api from "../../pages/lib/api";
+import * as api from "../../lib/api";
 
 // ---- Types ----
 export interface Donation {
