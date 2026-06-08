@@ -24,7 +24,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
         `}
       >
         {children}
-        <Footer />
+        {/* <Footer /> */}
       </main>
     </div>
   );

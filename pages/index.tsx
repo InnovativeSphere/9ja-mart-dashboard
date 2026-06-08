@@ -3,7 +3,6 @@
 import { useState, FormEvent } from "react";
 import { Mail, Lock, LogIn, Eye, EyeOff } from "lucide-react";
 
-/* ---------- dummy credentials ---------- */
 const VALID_EMAIL = "admin@9jamart.ng";
 const VALID_PASSWORD = "9jaMart2025";
 
@@ -37,12 +36,29 @@ export default function LoginPage() {
 
   return (
     <div className="login-page">
-      {/* Background orbs */}
+      {/* Background image + overlay */}
+      <div
+        className="login-bg"
+        style={{
+          backgroundImage: `url('https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?w=1920&q=80')`,
+        }}
+      >
+        <div className="login-bg-overlay" />
+      </div>
+
+      {/* Dot matrix pattern */}
+      <div className="dot-matrix" />
+
+      {/* Floating orbs */}
       <div className="bg-orb orb-1" />
       <div className="bg-orb orb-2" />
+      <div className="bg-orb orb-3" />
 
       <div className="login-container">
         <div className="glass-card">
+          {/* Card shine */}
+          <div className="card-shine" />
+
           {/* Brand */}
           <div className="brand-area">
             <div className="brand-icon">9</div>
@@ -52,7 +68,6 @@ export default function LoginPage() {
           <p className="login-heading">Sign in to the admin dashboard</p>
 
           <form onSubmit={handleSubmit} className="login-form">
-            {/* Email */}
             <div className="input-group">
               <Mail className="input-icon" size={16} />
               <input
@@ -65,7 +80,6 @@ export default function LoginPage() {
               />
             </div>
 
-            {/* Password */}
             <div className="input-group">
               <Lock className="input-icon" size={16} />
               <input
@@ -119,6 +133,38 @@ export default function LoginPage() {
           padding: 1rem;
         }
 
+        /* ==================== BACKGROUND IMAGE ==================== */
+        .login-bg {
+          position: absolute;
+          inset: 0;
+          background-size: cover;
+          background-position: center;
+          background-repeat: no-repeat;
+filter: blur(12px) brightness(0.55);          transform: scale(1.1);
+          z-index: 0;
+        }
+        .login-bg-overlay {
+          position: absolute;
+          inset: 0;
+          background: linear-gradient(
+            135deg,
+            rgba(10, 39, 66, 0.8) 0%,
+            rgba(20, 47, 82, 0.6) 50%,
+            rgba(41, 182, 216, 0.3) 100%
+          );
+        }
+
+        /* ==================== DOT MATRIX ==================== */
+        .dot-matrix {
+          position: absolute;
+          inset: 0;
+          background: radial-gradient(circle, rgba(255,255,255,0.08) 1px, transparent 1px);
+          background-size: 18px 18px;
+          z-index: 0;
+          pointer-events: none;
+        }
+
+        /* ==================== ORBS ==================== */
         .bg-orb {
           position: absolute;
           border-radius: 50%;
@@ -137,6 +183,12 @@ export default function LoginPage() {
           background: radial-gradient(circle, rgba(255,255,255,0.06) 0%, transparent 70%);
           animation: floatOrb 12s ease-in-out infinite reverse;
         }
+        .orb-3 {
+          width: 200px; height: 200px;
+          top: 50%; left: 50%;
+          background: radial-gradient(circle, rgba(41,182,216,0.15) 0%, transparent 70%);
+          animation: floatOrb 8s ease-in-out infinite;
+        }
         @keyframes floatOrb {
           0%, 100% { transform: translate(0, 0) scale(1); }
           50% { transform: translate(20px, -20px) scale(1.05); }
@@ -149,16 +201,46 @@ export default function LoginPage() {
           max-width: 380px;
         }
 
-        /* ==================== CARD ==================== */
+        /* ==================== GLASS CARD ==================== */
         .glass-card {
-          background: rgba(255, 255, 255, 0.07);
-          backdrop-filter: blur(20px);
-          -webkit-backdrop-filter: blur(20px);
-          border: 1px solid rgba(255, 255, 255, 0.12);
+          position: relative;
+          background: rgba(255, 255, 255, 0.06);
+          backdrop-filter: blur(24px);
+          -webkit-backdrop-filter: blur(24px);
+          border: 1px solid rgba(255, 255, 255, 0.15);
           border-radius: 24px;
           padding: 2.2rem 1.8rem;
-          box-shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.35);
+          box-shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.4);
           text-align: center;
+          overflow: hidden;
+          transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .glass-card:hover {
+          transform: translateY(-2px);
+          box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+        }
+
+        /* ==================== CARD SHINE ==================== */
+        .card-shine {
+          position: absolute;
+          top: 0;
+          left: -100%;
+          width: 50%;
+          height: 100%;
+          background: linear-gradient(
+            90deg,
+            transparent,
+            rgba(255,255,255,0.08),
+            transparent
+          );
+          transform: skewX(-25deg);
+          animation: shine 6s infinite;
+          pointer-events: none;
+        }
+        @keyframes shine {
+          0% { left: -100%; }
+          20% { left: 150%; }
+          100% { left: 150%; }
         }
 
         /* ==================== BRAND ==================== */
@@ -210,7 +292,7 @@ export default function LoginPage() {
         }
         .input-group:focus-within {
           border-color: #29b6d8;
-          box-shadow: 0 0 0 3px rgba(41,182,216,0.1);
+          box-shadow: 0 0 0 4px rgba(41,182,216,0.12);
         }
         .input-icon {
           color: rgba(255,255,255,0.5);
@@ -263,18 +345,36 @@ export default function LoginPage() {
           font-size: 0.95rem;
           border: none;
           cursor: pointer;
+          position: relative;
+          overflow: hidden;
           transition: all 0.3s ease;
+        }
+        .submit-btn::after {
+          content: "";
+          position: absolute;
+          top: 0;
+          left: -100%;
+          width: 100%;
+          height: 100%;
+          background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+          transition: left 0.4s;
         }
         .submit-btn:hover {
           background: #fff;
           color: #142f52;
           transform: translateY(-1px);
-          box-shadow: 0 6px 20px rgba(41,182,216,0.3);
+          box-shadow: 0 6px 20px rgba(41,182,216,0.35);
+        }
+        .submit-btn:hover::after {
+          left: 100%;
         }
         .submit-btn:disabled {
           opacity: 0.5;
           cursor: not-allowed;
           transform: none;
+        }
+        .submit-btn:disabled::after {
+          display: none;
         }
 
         .spinner {

@@ -8,9 +8,7 @@ import {
   ShoppingCart,
   Users,
   TrendingUp,
-  Settings,
   LogOut,
-  Store,
   BarChart3,
 } from "lucide-react";
 
@@ -23,11 +21,9 @@ const navItems = [
   { name: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
   { name: "Products", href: "/products", icon: Package },
   { name: "Orders", href: "/orders", icon: ShoppingCart },
-  { name: "Sellers", href: "/sellers", icon: Store },
-  { name: "Buyers", href: "/buyers", icon: Users },
+  { name: "Users", href: "/users", icon: Users },
   { name: "Transactions", href: "/transactions", icon: TrendingUp },
   { name: "Analytics", href: "/analytics", icon: BarChart3 },
-  { name: "Settings", href: "/settings", icon: Settings },
 ];
 
 export default function Sidebar({ collapsed, setCollapsed }: SidebarProps) {
@@ -96,11 +92,11 @@ export default function Sidebar({ collapsed, setCollapsed }: SidebarProps) {
         })}
       </nav>
 
-      {/* Logout */}
+      {/* Logout – softer red */}
       <div className="px-2 py-3 border-t border-[#29b6d8]/10">
         <button
           onClick={() => router.push("/")}
-          className="flex items-center justify-center gap-2 w-full px-3 py-2.5 rounded-lg text-white/80 bg-white/5 border border-white/10 hover:bg-red-500/20 hover:text-red-400 hover:border-red-500/30 transition-all duration-300 text-sm font-medium"
+          className="flex items-center justify-center gap-2 w-full px-3 py-2.5 rounded-lg text-white/80 bg-white/5 border border-white/10 hover:bg-red-400/15 hover:text-red-300 hover:border-red-400/30 transition-all duration-300 text-sm font-medium"
         >
           <LogOut size={18} />
           <span className={`${collapsed ? "hidden" : "block"}`}>Logout</span>
