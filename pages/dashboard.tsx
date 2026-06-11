@@ -17,7 +17,6 @@ import {
   Package,
   ShoppingCart,
   Users,
-  DollarSign,
   TrendingUp,
   Store,
   ArrowUpRight,
@@ -29,7 +28,7 @@ import {
 import StatsCard from "@/components/StatusCard";
 import { Card } from "@/components/Card";
 
-/* ==================== MOCK DATA ==================== */
+/* ==================== MOCK DATA (unchanged) ==================== */
 const MOCK_PRODUCTS = 248;
 const MOCK_ORDERS = 132;
 const MOCK_SELLERS = 56;
@@ -140,6 +139,28 @@ export default function Dashboard() {
           />
         </div>
 
+        {/* ========== QUICK ACTIONS – moved here ========== */}
+        <Card className="glass-card p-6 rounded-2xl border border-white/10">
+          <h2 className="text-lg font-semibold mb-4 text-center">Quick Actions</h2>
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+            {[
+              { label: "Add Product", href: "/products/new", icon: Plus },
+              { label: "View Orders", href: "/orders", icon: FileText },
+              { label: "Sellers", href: "/sellers", icon: Store },
+              { label: "Settings", href: "/settings", icon: Settings },
+            ].map((action) => (
+              <Link
+                key={action.label}
+                href={action.href}
+                className="flex flex-col items-center justify-center gap-2 p-4 rounded-xl bg-white/5 border border-white/10 hover:bg-white/10 transition opacity-80 hover:opacity-100"
+              >
+                <action.icon size={20} />
+                <span className="text-xs font-medium text-center">{action.label}</span>
+              </Link>
+            ))}
+          </div>
+        </Card>
+
         {/* ========== MAIN GRID ========== */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* Revenue Overview */}
@@ -196,7 +217,7 @@ export default function Dashboard() {
 
         {/* ========== SECOND GRID ========== */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          {/* Recent Orders – grid-based cards */}
+          {/* Recent Orders */}
           <Card className="lg:col-span-2 glass-card p-6 rounded-2xl border border-white/10">
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-lg font-semibold">Recent Orders</h2>
@@ -231,47 +252,24 @@ export default function Dashboard() {
             </div>
           </Card>
 
-          {/* Top Sellers + Quick Actions */}
-          <div className="space-y-6">
-            <Card className="glass-card p-6 rounded-2xl border border-white/10">
-              <h2 className="text-lg font-semibold mb-4">Top Sellers</h2>
-              <div className="space-y-3">
-                {topSellers.map((seller, idx) => (
-                  <div key={seller.name} className="flex items-center justify-between py-2 border-b border-white/5 last:border-0">
-                    <div className="flex items-center gap-3">
-                      <span className="w-6 h-6 rounded-full bg-[#29b6d8]/20 text-[#29b6d8] flex items-center justify-center text-xs font-bold">{idx + 1}</span>
-                      <div>
-                        <p className="text-sm font-medium">{seller.name}</p>
-                        <p className="text-xs opacity-60">{seller.sales} sales</p>
-                      </div>
+          {/* Top Sellers */}
+          <Card className="glass-card p-6 rounded-2xl border border-white/10">
+            <h2 className="text-lg font-semibold mb-4">Top Sellers</h2>
+            <div className="space-y-3">
+              {topSellers.map((seller, idx) => (
+                <div key={seller.name} className="flex items-center justify-between py-2 border-b border-white/5 last:border-0">
+                  <div className="flex items-center gap-3">
+                    <span className="w-6 h-6 rounded-full bg-[#29b6d8]/20 text-[#29b6d8] flex items-center justify-center text-xs font-bold">{idx + 1}</span>
+                    <div>
+                      <p className="text-sm font-medium">{seller.name}</p>
+                      <p className="text-xs opacity-60">{seller.sales} sales</p>
                     </div>
-                    <span className="text-sm font-semibold">{seller.revenue}</span>
                   </div>
-                ))}
-              </div>
-            </Card>
-
-            <Card className="glass-card p-6 rounded-2xl border border-white/10">
-              <h2 className="text-lg font-semibold mb-4 text-center">Quick Actions</h2>
-              <div className="grid grid-cols-2 gap-3">
-                {[
-                  { label: "Add Product", href: "/products/new", icon: Plus },
-                  { label: "View Orders", href: "/orders", icon: FileText },
-                  { label: "Sellers", href: "/sellers", icon: Store },
-                  { label: "Settings", href: "/settings", icon: Settings },
-                ].map((action) => (
-                  <Link
-                    key={action.label}
-                    href={action.href}
-                    className="flex flex-col items-center justify-center gap-1.5 p-4 rounded-xl bg-white/5 border border-white/10 hover:bg-white/10 transition opacity-80 hover:opacity-100"
-                  >
-                    <action.icon size={20} />
-                    <span className="text-xs font-medium text-center">{action.label}</span>
-                  </Link>
-                ))}
-              </div>
-            </Card>
-          </div>
+                  <span className="text-sm font-semibold">{seller.revenue}</span>
+                </div>
+              ))}
+            </div>
+          </Card>
         </div>
       </div>
 
