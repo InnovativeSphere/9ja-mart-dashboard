@@ -2,6 +2,8 @@
 
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
+import { useDispatch } from "react-redux";
+import { logout } from "../redux/slices/authSlice";
 import {
   LayoutDashboard,
   Package,
@@ -11,6 +13,7 @@ import {
   LogOut,
   BarChart3,
 } from "lucide-react";
+import { AppDispatch } from "@/redux/store";
 
 interface SidebarProps {
   collapsed: boolean;
@@ -29,6 +32,12 @@ const navItems = [
 export default function Sidebar({ collapsed, setCollapsed }: SidebarProps) {
   const pathname = usePathname();
   const router = useRouter();
+   const dispatch = useDispatch<AppDispatch>();
+
+  const handleLogout = async () => {
+    await dispatch(logout());
+    router.push("/");
+  };
 
   return (
     <aside
@@ -92,18 +101,17 @@ export default function Sidebar({ collapsed, setCollapsed }: SidebarProps) {
         })}
       </nav>
 
-      {/* Logout – red, half width, icon only */}
-    {/* Logout – red, wider, icon only */}
-<div className="px-2 py-3 border-t border-[#29b6d8]/10 flex justify-center">
-  <button
-    onClick={() => router.push("/")}
-    className="flex items-center justify-center w-28 h-10 rounded-lg bg-red-500 text-white hover:bg-red-600 transition-all duration-300"
-    aria-label="Logout"
-    title="Logout"
-  >
-    <LogOut size={18} />
-  </button>
-</div>
+      {/* Logout – red, half width, icon only, wired to Redux */}
+      <div className="px-2 py-3 border-t border-[#29b6d8]/10 flex justify-center">
+        <button
+          onClick={handleLogout}
+          className="flex items-center justify-center w-28 h-10 rounded-lg bg-red-500 text-white hover:bg-red-600 transition-all duration-300"
+          aria-label="Logout"
+          title="Logout"
+        >
+          <LogOut size={18} />
+        </button>
+      </div>
     </aside>
   );
 }

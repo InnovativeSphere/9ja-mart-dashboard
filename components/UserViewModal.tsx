@@ -1,14 +1,23 @@
 "use client";
 import { useEffect } from "react";
-import { X, User, Mail, Layers, CheckCircle, Calendar } from "lucide-react";
+import {
+  X, User, Mail, Layers, CheckCircle, Calendar,
+  AtSign, Phone, Package, ShoppingCart
+} from "lucide-react";
 
+// Aligned with MarketplaceUser from API
 interface UserData {
-  id: number;
-  name: string;
+  guid: string;
+  fullName: string;
+  username?: string;
   email: string;
-  tier: string;
-  status: string;
-  joined: string;
+  phone?: string;
+  isActive: boolean;
+  dateCreated: string;
+  subscriptionPlan: string;
+  subscriptionStatus: string;
+  productCount?: number;
+  orderCount?: number;
 }
 
 interface Props {
@@ -25,18 +34,29 @@ export default function UserViewModal({ user, onClose }: Props) {
 
   if (!user) return null;
 
+  // Helper to safely render a value or "—"
+  const safe = (value: any, fallback = "—") => {
+    if (value === null || value === undefined || value === "") return fallback;
+    return value;
+  };
+
   return (
     <div className="modal-overlay" onClick={onClose}>
       <div className="modal-card" onClick={(e) => e.stopPropagation()}>
         <div className="modal-header">
-          <h2 className="text-xl font-bold">{user.name}</h2>
+          <h2 className="text-xl font-bold">{safe(user.fullName)}</h2>
           <button onClick={onClose} className="modal-close-btn"><X size={20} /></button>
         </div>
         <div className="modal-grid">
-          <Detail icon={Mail} label="Email" value={user.email} />
-          <Detail icon={Layers} label="Tier" value={user.tier} />
-          <Detail icon={CheckCircle} label="Status" value={user.status} />
-          <Detail icon={Calendar} label="Joined" value={user.joined} />
+          <Detail icon={User} label="Full Name" value={safe(user.fullName)} />
+          <Detail icon={AtSign} label="Username" value={safe(user.username)} />
+          <Detail icon={Mail} label="Email" value={safe(user.email)} />
+          <Detail icon={Phone} label="Phone" value={safe(user.phone)} />
+          <Detail icon={Layers} label="Tier" value={safe(user.subscriptionPlan)} />
+          <Detail icon={CheckCircle} label="Status" value={user.isActive ? "Active" : "Inactive"} />
+          <Detail icon={Calendar} label="Joined" value={new Date(user.dateCreated).toLocaleDateString()} />
+          <Detail icon={Package} label="Products" value={user.productCount != null ? user.productCount.toString() : "—"} />
+          <Detail icon={ShoppingCart} label="Orders" value={user.orderCount != null ? user.orderCount.toString() : "—"} />
         </div>
       </div>
       <style jsx>{`
@@ -46,7 +66,7 @@ export default function UserViewModal({ user, onClose }: Props) {
           display: flex; align-items: center; justify-content: center; padding: 1rem;
         }
         .modal-card {
-          width: 100%; max-width: 500px;
+          width: 100%; max-width: 560px;
           background: rgba(10,39,66,0.95); backdrop-filter: blur(20px);
           border: 1px solid rgba(41,182,216,0.2); border-radius: 24px;
           padding: 1.6rem 1.8rem; animation: pop 0.25s ease;

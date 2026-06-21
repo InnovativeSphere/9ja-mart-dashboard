@@ -1,37 +1,44 @@
 "use client";
 
-import { useState, FormEvent } from "react";
+import { useState, useEffect, FormEvent } from "react";
+import { useRouter } from "next/navigation";
+import { useDispatch, useSelector } from "react-redux";
+import { AppDispatch, RootState } from "../redux/store";
+import { login, clearError } from "../redux/slices/authSlice";
 import { Mail, Lock, LogIn, Eye, EyeOff } from "lucide-react";
 
-const VALID_EMAIL = "admin@9jamart.ng";
-const VALID_PASSWORD = "9jaMart2025";
-
 export default function LoginPage() {
+  const router = useRouter();
+  const dispatch = useDispatch<AppDispatch>();
+  const { token, loading, error } = useSelector((state: RootState) => state.auth);
+
   const [email, setEmail] = useState<string>("");
   const [password, setPassword] = useState<string>("");
   const [showPassword, setShowPassword] = useState<boolean>(false);
-  const [loading, setLoading] = useState<boolean>(false);
-  const [error, setError] = useState<string>("");
+
+  // Redirect if already logged in
+  useEffect(() => {
+    if (token) {
+      router.push("/dashboard");
+    }
+  }, [token, router]);
+
+  // Clear Redux error when fields change
+  useEffect(() => {
+    if (error) {
+      dispatch(clearError());
+    }
+  }, [email, password, dispatch]);
 
   const handleSubmit = (e: FormEvent) => {
     e.preventDefault();
-    setError("");
 
     if (!email || !password) {
-      setError("Please fill in both fields.");
+      dispatch(login({ identifier: "", password: "" })); // won't fire, just for safety
       return;
     }
 
-    setLoading(true);
-
-    setTimeout(() => {
-      if (email === VALID_EMAIL && password === VALID_PASSWORD) {
-        window.location.href = "/dashboard";
-      } else {
-        setError("Invalid credentials. Try admin@9jamart.ng / 9jaMart2025");
-        setLoading(false);
-      }
-    }, 1000);
+    dispatch(login({ identifier: email, password }));
   };
 
   return (
@@ -140,7 +147,8 @@ export default function LoginPage() {
           background-size: cover;
           background-position: center;
           background-repeat: no-repeat;
-filter: blur(12px) brightness(0.55);          transform: scale(1.1);
+          filter: blur(12px) brightness(0.55);
+          transform: scale(1.1);
           z-index: 0;
         }
         .login-bg-overlay {

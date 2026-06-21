@@ -2,12 +2,13 @@
 import { useState, useEffect } from "react";
 import { X, Save, User, Mail, Layers, CheckCircle } from "lucide-react";
 
+// Matches the API's MarketplaceUser + SubscriptionPlan/Status fields
 interface UserData {
-  id?: number;
-  name: string;
+  guid?: string;
+  fullName: string;
   email: string;
-  tier: string;
-  status: string;
+  subscriptionPlan: string;   // "None", "Vendor", "Business"
+  subscriptionStatus: string; // "Active", "Inactive", etc.
 }
 
 interface Props {
@@ -16,11 +17,11 @@ interface Props {
   onSave: (u: UserData) => void;
 }
 
-const TIERS = ["Customer", "Vendor", "Business"];
+const TIERS = ["None", "Vendor", "Business"];
 const STATUSES = ["Active", "Inactive", "Suspended"];
 
 export default function UserFormModal({ user, onClose, onSave }: Props) {
-  const [name, setName] = useState("");
+  const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
   const [tier, setTier] = useState(TIERS[0]);
   const [status, setStatus] = useState(STATUSES[0]);
@@ -29,10 +30,10 @@ export default function UserFormModal({ user, onClose, onSave }: Props) {
 
   useEffect(() => {
     if (user) {
-      setName(user.name);
-      setEmail(user.email);
-      setTier(user.tier);
-      setStatus(user.status);
+      setFullName(user.fullName || "");
+      setEmail(user.email || "");
+      setTier(user.subscriptionPlan || TIERS[0]);
+      setStatus(user.subscriptionStatus || STATUSES[0]);
     }
   }, [user]);
 
@@ -44,7 +45,13 @@ export default function UserFormModal({ user, onClose, onSave }: Props) {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    onSave({ id: user?.id, name, email, tier, status });
+    onSave({
+      guid: user?.guid,
+      fullName,
+      email,
+      subscriptionPlan: tier,
+      subscriptionStatus: status,
+    });
     onClose();
   };
 
@@ -59,9 +66,9 @@ export default function UserFormModal({ user, onClose, onSave }: Props) {
         <form onSubmit={handleSubmit} className="form-body">
           <div className="form-row">
             <div className="field-group">
-              <label className="field-label"><User size={15} /> Name</label>
+              <label className="field-label"><User size={15} /> Full Name</label>
               <input
-                type="text" value={name} onChange={(e) => setName(e.target.value)}
+                type="text" value={fullName} onChange={(e) => setFullName(e.target.value)}
                 required placeholder="Full name" className="field-input"
               />
             </div>
