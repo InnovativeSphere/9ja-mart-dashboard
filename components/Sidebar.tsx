@@ -12,6 +12,9 @@ import {
   TrendingUp,
   LogOut,
   BarChart3,
+  ArrowUpDown,
+  CreditCard,
+  Layers,
 } from "lucide-react";
 import { AppDispatch } from "@/redux/store";
 
@@ -21,12 +24,14 @@ interface SidebarProps {
 }
 
 const navItems = [
-  { name: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
-  { name: "Products", href: "/products", icon: Package },
-  { name: "Orders", href: "/orders", icon: ShoppingCart },
-  { name: "Users", href: "/users", icon: Users },
-  { name: "Transactions", href: "/transactions", icon: TrendingUp },
-  { name: "Analytics", href: "/analytics", icon: BarChart3 },
+  { name: "Dashboard",    href: "/dashboard",    icon: LayoutDashboard },
+  { name: "Products",     href: "/products",     icon: Package },
+  // { name: "Orders",       href: "/orders",       icon: ShoppingCart },
+  { name: "Users",        href: "/users",        icon: Users },
+  { name: "Subscriptions",href: "/subscriptions",icon: CreditCard },
+  { name: "Plans",        href: "/plans",        icon: Layers },
+  { name: "Transactions", href: "/transactions",  icon: ArrowUpDown },
+  { name: "Analytics",    href: "/analytics",     icon: BarChart3 },
 ];
 
 export default function Sidebar({ collapsed, setCollapsed }: SidebarProps) {

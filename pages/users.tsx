@@ -11,10 +11,7 @@ import {
   CheckCircle,
   XCircle,
   Eye,
-  Edit,
-  Plus,
 } from "lucide-react";
-import UserFormModal from "@/components/UserFormModal";
 import UserViewModal from "@/components/UserViewModal";
 
 const TIERS = ["All", "Customer", "Vendor", "Business"];
@@ -34,18 +31,14 @@ export default function UsersPage() {
 
   // Modal state
   const [viewUser, setViewUser] = useState<any>(null);
-  const [editUser, setEditUser] = useState<any>(null);
-  const [showCreate, setShowCreate] = useState(false);
 
   // Fetch users on mount and whenever filters change
   const loadUsers = useCallback(() => {
     const params: any = { PageNumber: page, PageSize: 20 };
     if (search.trim()) params.SearchText = search.trim();
     if (tierFilter !== "All") params.Tier = tierFilter;
-    // Map our status filter to API parameters (Active, Inactive, etc.)
     if (statusFilter === "Active") params.IsActive = true;
     else if (statusFilter === "Inactive") params.IsActive = false;
-    // Note: "Suspended" is not a direct filter on the API; may need to use SubscriptionStatus later
     dispatch(fetchUsers(params));
   }, [dispatch, search, tierFilter, statusFilter, page]);
 
@@ -73,8 +66,6 @@ export default function UsersPage() {
     };
   }, [dashboardData]);
 
-  // No delete handler – remove the button entirely
-
   return (
     <div className="users-wrapper">
       <div className="px-2 sm:px-4 py-6 space-y-8 animate-fadeIn">
@@ -86,13 +77,7 @@ export default function UsersPage() {
               Manage all platform users — {stats.total} total.
             </p>
           </div>
-          <button
-            onClick={() => setShowCreate(true)}
-            className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-gradient-to-r from-[#29b6d8] to-[#3ec8e6] text-white font-medium text-sm hover:scale-[1.02] transition"
-          >
-            <Plus size={16} />
-            Add User
-          </button>
+          {/* No Add User button */}
         </div>
 
         {/* ========== STATS CARDS (from dashboard) ========== */}
@@ -212,10 +197,7 @@ export default function UsersPage() {
                         <button onClick={() => setViewUser(user)} className="p-1.5 rounded-md hover:bg-white/10 transition opacity-70 hover:opacity-100" title="View">
                           <Eye size={15} />
                         </button>
-                        <button onClick={() => setEditUser(user)} className="p-1.5 rounded-md hover:bg-white/10 transition opacity-70 hover:opacity-100" title="Edit">
-                          <Edit size={15} />
-                        </button>
-                        {/* No delete – API doesn't support it yet */}
+                        {/* No Edit or Delete */}
                       </div>
                     </td>
                   </tr>
@@ -233,21 +215,8 @@ export default function UsersPage() {
         </Card>
       </div>
 
-      {/* ========== MODALS (current mock versions – will be updated later) ========== */}
+      {/* ========== VIEW MODAL ========== */}
       <UserViewModal user={viewUser} onClose={() => setViewUser(null)} />
-
-      {(editUser || showCreate) && (
-        <UserFormModal
-          user={editUser}
-          onClose={() => { setEditUser(null); setShowCreate(false); }}
-          onSave={(user) => {
-            // Placeholder – will be replaced with real API call later
-            console.log("Save user:", user);
-            setEditUser(null);
-            setShowCreate(false);
-          }}
-        />
-      )}
 
       <style jsx>{`
         .users-wrapper {

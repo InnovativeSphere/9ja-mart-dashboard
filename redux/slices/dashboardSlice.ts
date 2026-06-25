@@ -18,7 +18,8 @@ export const fetchDashboard = createAsyncThunk(
   "dashboard/fetch",
   async (_, { rejectWithValue }) => {
     try {
-      const response = await getDashboardOverview();
+      // Pass RecentLimit so the recent* arrays are populated
+      const response = await getDashboardOverview({ RecentLimit: 5 });
       return response.data;
     } catch (err: any) {
       return rejectWithValue(err.message);

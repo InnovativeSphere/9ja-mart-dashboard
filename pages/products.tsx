@@ -1,6 +1,13 @@
 "use client";
-import { useState, useMemo } from "react";
-import Link from "next/link";
+import { useEffect, useState, useMemo, useCallback } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { RootState, AppDispatch } from "../redux/store";
+import {
+  fetchProducts,
+  fetchProductDetail,
+  deleteProduct,
+  clearSelectedProduct,
+} from "../redux/slices/productsSlice";
 import { Card } from "@/components/Card";
 import {
   Package,
@@ -8,108 +15,110 @@ import {
   Layers,
   AlertTriangle,
   TrendingUp,
-  Edit,
-  Trash2,
   Eye,
-  Plus,
-  X,
+  Trash2,
   AlertCircle,
 } from "lucide-react";
 import ProductViewModal from "@/components/ProductViewModal";
-import ProductFormModal from "@/components/ProductFormModal";
 
-/* ==================== MOCK DATA ==================== */
-const INITIAL_PRODUCTS = [
-  { id: 1, name: "Wireless Earbuds", category: "Electronics", price: "₦12,500", stock: 45, status: "Active", sku: "ELEC-001", description: "High-quality wireless earbuds with noise cancellation and long battery life.", createdAt: "2025-08-15", updatedAt: "2026-05-28" },
-  { id: 2, name: "Smart Watch", category: "Electronics", price: "₦35,000", stock: 18, status: "Active", sku: "ELEC-002", description: "Feature-packed smartwatch with health monitoring and GPS.", createdAt: "2025-10-22", updatedAt: "2026-05-25" },
-  { id: 3, name: "Bluetooth Speaker", category: "Electronics", price: "₦8,200", stock: 32, status: "Active", sku: "ELEC-003", description: "Portable Bluetooth speaker with deep bass.", createdAt: "2025-12-01", updatedAt: "2026-05-15" },
-  { id: 4, name: "Kitchen Blender", category: "Home & Living", price: "₦18,200", stock: 7, status: "Low Stock", sku: "HOME-001", description: "Powerful blender for smoothies, soups, and more.", createdAt: "2026-01-10", updatedAt: "2026-05-20" },
-  { id: 5, name: "Office Chair", category: "Home & Living", price: "₦42,800", stock: 0, status: "Out of Stock", sku: "HOME-002", description: "Ergonomic office chair with lumbar support.", createdAt: "2026-02-18", updatedAt: "2026-05-10" },
-  { id: 6, name: "Desk Lamp", category: "Home & Living", price: "₦6,500", stock: 25, status: "Active", sku: "HOME-003", description: "LED desk lamp with adjustable brightness.", createdAt: "2026-03-05", updatedAt: "2026-05-12" },
-  { id: 7, name: "Men's Running Shoes", category: "Fashion", price: "₦22,000", stock: 15, status: "Active", sku: "FASH-001", description: "Lightweight running shoes for everyday training.", createdAt: "2026-01-20", updatedAt: "2026-04-28" },
-  { id: 8, name: "Women's Handbag", category: "Fashion", price: "₦15,800", stock: 9, status: "Low Stock", sku: "FASH-002", description: "Stylish leather handbag for any occasion.", createdAt: "2026-02-10", updatedAt: "2026-05-01" },
-  { id: 9, name: "Denim Jacket", category: "Fashion", price: "₦28,500", stock: 12, status: "Active", sku: "FASH-003", description: "Classic denim jacket, timeless style.", createdAt: "2026-03-15", updatedAt: "2026-05-05" },
-  { id: 10, name: "Face Moisturizer", category: "Beauty", price: "₦4,200", stock: 60, status: "Active", sku: "BEAUT-001", description: "Hydrating face moisturizer for all skin types.", createdAt: "2025-11-20", updatedAt: "2026-05-18" },
-  { id: 11, name: "Lipstick Set", category: "Beauty", price: "₦3,800", stock: 48, status: "Active", sku: "BEAUT-002", description: "Set of 6 vibrant lipstick shades.", createdAt: "2026-01-05", updatedAt: "2026-05-10" },
-  { id: 12, name: "Hair Dryer", category: "Beauty", price: "₦9,900", stock: 3, status: "Low Stock", sku: "BEAUT-003", description: "Professional hair dryer with ionic technology.", createdAt: "2026-03-20", updatedAt: "2026-05-08" },
-  { id: 13, name: "Yoga Mat", category: "Sports", price: "₦5,500", stock: 30, status: "Active", sku: "SPORT-001", description: "Non-slip yoga mat, 6mm thick.", createdAt: "2026-04-01", updatedAt: "2026-05-22" },
-  { id: 14, name: "Resistance Bands", category: "Sports", price: "₦2,800", stock: 0, status: "Out of Stock", sku: "SPORT-002", description: "Set of 5 resistance bands for workouts.", createdAt: "2026-04-15", updatedAt: "2026-05-19" },
-  { id: 15, name: "Dumbbell Set", category: "Sports", price: "₦19,500", stock: 11, status: "Active", sku: "SPORT-003", description: "Adjustable dumbbell set, 2-20kg.", createdAt: "2026-05-01", updatedAt: "2026-05-20" },
+/* ---------- Client‑side filter options ---------- */
+const CATEGORIES = [
+  "All",
+  "Electronics",
+  "Home & Living",
+  "Fashion",
+  "Beauty",
+  "Sports",
 ];
 
-const CATEGORIES = ["All", "Electronics", "Home & Living", "Fashion", "Beauty", "Sports"];
+// Status options derived from stock
+const STATUSES = ["All", "Active", "Low Stock", "Out of Stock"];
 
-/* ==================== COMPONENT ==================== */
 export default function ProductsPage() {
-  const [products, setProducts] = useState(INITIAL_PRODUCTS);
+  const dispatch = useDispatch<AppDispatch>();
+  const { items, loading, error, selectedProduct, deleteLoading, deleteError } =
+    useSelector((state: RootState) => state.products);
+
+  // Local filter state
   const [search, setSearch] = useState("");
   const [categoryFilter, setCategoryFilter] = useState("All");
   const [statusFilter, setStatusFilter] = useState("All");
+  const [page, setPage] = useState(1);
 
+  // Modal state
   const [viewProduct, setViewProduct] = useState<any>(null);
-  const [editProduct, setEditProduct] = useState<any>(null);
-  const [showCreate, setShowCreate] = useState(false);
   const [deleteTarget, setDeleteTarget] = useState<any>(null);
 
-  // ---------- FILTERED LIST ----------
+  // Fetch products on mount
+  const loadProducts = useCallback(() => {
+    const params: any = { PageNumber: page, PageSize: 50 };
+    dispatch(fetchProducts(params));
+  }, [dispatch, page]);
+
+  useEffect(() => {
+    loadProducts();
+  }, [loadProducts]);
+
+  const handleView = async (product: any) => {
+    setViewProduct(product); // show immediately from list data
+    try {
+      await dispatch(fetchProductDetail(product.id)).unwrap();
+    } catch {
+      // if detail fails, the list data is already shown
+    }
+  };
+
+  // Delete handler
+  const handleDelete = () => {
+    if (deleteTarget) {
+      dispatch(deleteProduct(deleteTarget.id));
+      setDeleteTarget(null);
+    }
+  };
+
+  // Helper to derive status from stock
+  const getDerivedStatus = (stock: number) => {
+    if (stock > 10) return "Active";
+    if (stock > 0) return "Low Stock";
+    return "Out of Stock";
+  };
+
+  // Client‑side filtering
   const filteredProducts = useMemo(() => {
-    let result = products;
+    let result = items;
+
+    // Category filter
     if (categoryFilter !== "All") {
       result = result.filter((p) => p.category === categoryFilter);
     }
+
+    // Status filter (derived from stock)
     if (statusFilter !== "All") {
-      result = result.filter((p) => p.status === statusFilter);
+      result = result.filter((p) => getDerivedStatus(p.stock) === statusFilter);
     }
+
+    // Search
     if (search.trim()) {
       const q = search.toLowerCase();
       result = result.filter(
         (p) =>
-          p.name.toLowerCase().includes(q) ||
-          p.category.toLowerCase().includes(q)
+          p.name?.toLowerCase().includes(q) ||
+          p.category?.toLowerCase().includes(q)
       );
     }
+
     return result;
-  }, [products, search, categoryFilter, statusFilter]);
+  }, [items, search, categoryFilter, statusFilter]);
 
-  // ---------- STATS ----------
+  // Stats derived from real data
   const stats = useMemo(() => {
-    const total = products.length;
-    const active = products.filter((p) => p.status === "Active").length;
-    const lowStock = products.filter((p) => p.stock > 0 && p.stock <= 10).length;
-    const outOfStock = products.filter((p) => p.stock === 0).length;
-    const categories = new Set(products.map((p) => p.category)).size;
+    const total = items.length;
+    const active = items.filter((p) => p.stock > 10).length;
+    const lowStock = items.filter((p) => p.stock > 0 && p.stock <= 10).length;
+    const outOfStock = items.filter((p) => p.stock === 0).length;
+    const categories = new Set(items.map((p) => p.category)).size;
     return { total, active, lowStock, outOfStock, categories };
-  }, [products]);
-
-  // ---------- CRUD HANDLERS ----------
-  const handleSave = (product: any) => {
-    if (product.id) {
-      // Edit existing
-      setProducts((prev) =>
-        prev.map((p) => (p.id === product.id ? { ...p, ...product, updatedAt: new Date().toISOString().split("T")[0] } : p))
-      );
-    } else {
-      // Create new
-      const newProduct = {
-        ...product,
-        id: Date.now(),
-        sku: "SKU-" + Date.now().toString().slice(-6),
-        createdAt: new Date().toISOString().split("T")[0],
-        updatedAt: new Date().toISOString().split("T")[0],
-        status: product.stock === 0 ? "Out of Stock" : product.stock <= 10 ? "Low Stock" : "Active",
-      };
-      setProducts((prev) => [newProduct, ...prev]);
-    }
-    setEditProduct(null);
-    setShowCreate(false);
-  };
-
-  const handleDelete = () => {
-    if (deleteTarget) {
-      setProducts((prev) => prev.filter((p) => p.id !== deleteTarget.id));
-      setDeleteTarget(null);
-    }
-  };
+  }, [items]);
 
   return (
     <div className="products-wrapper">
@@ -119,16 +128,10 @@ export default function ProductsPage() {
           <div>
             <h1 className="text-2xl font-bold">Products</h1>
             <p className="text-sm opacity-60 mt-1">
-              Manage your inventory — {products.length} products across {stats.categories} categories.
+              View and manage products — {items.length} total.
             </p>
           </div>
-          <button
-            onClick={() => setShowCreate(true)}
-            className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-gradient-to-r from-[#29b6d8] to-[#3ec8e6] text-white font-medium text-sm hover:scale-[1.02] transition"
-          >
-            <Plus size={16} />
-            Add Product
-          </button>
+          {/* No Add Product button */}
         </div>
 
         {/* ========== STATS CARDS ========== */}
@@ -179,10 +182,9 @@ export default function ProductsPage() {
             onChange={(e) => setStatusFilter(e.target.value)}
             className="px-4 py-2.5 rounded-lg bg-white/5 border border-white/10 text-white text-sm focus:outline-none focus:border-[#29b6d8] transition"
           >
-            <option value="All">All Status</option>
-            <option value="Active">Active</option>
-            <option value="Low Stock">Low Stock</option>
-            <option value="Out of Stock">Out of Stock</option>
+            {STATUSES.map((status) => (
+              <option key={status} value={status}>{status}</option>
+            ))}
           </select>
         </div>
 
@@ -196,56 +198,98 @@ export default function ProductsPage() {
                   <th className="py-3 px-4 font-medium hidden sm:table-cell">Category</th>
                   <th className="py-3 px-4 font-medium">Price</th>
                   <th className="py-3 px-4 font-medium">Stock</th>
-                  <th className="py-3 px-4 font-medium">Status</th>
+                  <th className="py-3 px-4 font-medium hidden md:table-cell">Status</th>
                   <th className="py-3 px-4 font-medium text-right">Actions</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-white/5">
-                {filteredProducts.map((product) => (
-                  <tr key={product.id} className="hover:bg-white/5 transition">
-                    <td className="py-3 px-4">
-                      <div className="flex items-center gap-3">
-                        <div className="w-8 h-8 rounded-lg bg-[#29b6d8]/10 flex items-center justify-center text-[#29b6d8] font-bold text-xs">
-                          {product.name.charAt(0)}
-                        </div>
-                        <span className="font-medium truncate max-w-[150px]">{product.name}</span>
-                      </div>
-                    </td>
-                    <td className="py-3 px-4 hidden sm:table-cell opacity-80">{product.category}</td>
-                    <td className="py-3 px-4 font-medium">{product.price}</td>
-                    <td className="py-3 px-4">
-                      <span className={`font-medium ${
-                        product.stock === 0 ? "text-red-400" :
-                        product.stock <= 10 ? "text-yellow-400" : "text-green-400"
-                      }`}>
-                        {product.stock}
-                      </span>
-                    </td>
-                    <td className="py-3 px-4">
-                      <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${
-                        product.status === "Active" ? "bg-green-500/20 text-green-400" :
-                        product.status === "Low Stock" ? "bg-yellow-500/20 text-yellow-400" :
-                        "bg-red-500/20 text-red-400"
-                      }`}>
-                        {product.status}
-                      </span>
-                    </td>
-                    <td className="py-3 px-4">
-                      <div className="flex items-center justify-end gap-1">
-                        <button onClick={() => setViewProduct(product)} className="p-1.5 rounded-md hover:bg-white/10 transition opacity-70 hover:opacity-100" title="View">
-                          <Eye size={15} />
-                        </button>
-                        <button onClick={() => setEditProduct(product)} className="p-1.5 rounded-md hover:bg-white/10 transition opacity-70 hover:opacity-100" title="Edit">
-                          <Edit size={15} />
-                        </button>
-                        <button onClick={() => setDeleteTarget(product)} className="p-1.5 rounded-md hover:bg-red-500/20 transition opacity-70 hover:opacity-100 text-red-400" title="Delete">
-                          <Trash2 size={15} />
-                        </button>
-                      </div>
-                    </td>
+                {loading && (
+                  <tr>
+                    <td colSpan={6} className="py-10 text-center opacity-60">Loading products...</td>
                   </tr>
-                ))}
-                {filteredProducts.length === 0 && (
+                )}
+                {error && (
+                  <tr>
+                    <td colSpan={6} className="py-10 text-center text-red-400">{error}</td>
+                  </tr>
+                )}
+                {!loading &&
+                  !error &&
+                  filteredProducts.map((product) => {
+                    const derivedStatus = getDerivedStatus(product.stock);
+                    const statusColor =
+                      derivedStatus === "Active"
+                        ? "bg-green-500/20 text-green-400"
+                        : derivedStatus === "Low Stock"
+                        ? "bg-yellow-500/20 text-yellow-400"
+                        : "bg-red-500/20 text-red-400";
+
+                    return (
+                      <tr key={product.id} className="hover:bg-white/5 transition">
+                        <td className="py-3 px-4">
+                          <div className="flex items-center gap-3">
+                            {product.images?.[0] ? (
+                              <img
+                                src={product.images[0]}
+                                alt={product.name}
+                                className="w-8 h-8 rounded-lg object-cover bg-white/10"
+                              />
+                            ) : (
+                              <div className="w-8 h-8 rounded-lg bg-[#29b6d8]/10 flex items-center justify-center text-[#29b6d8] font-bold text-xs">
+                                {product.name?.charAt(0) || "P"}
+                              </div>
+                            )}
+                            <span className="font-medium truncate max-w-[150px]">
+                              {product.name}
+                            </span>
+                          </div>
+                        </td>
+                        <td className="py-3 px-4 hidden sm:table-cell opacity-80">
+                          {product.category || "—"}
+                        </td>
+                        <td className="py-3 px-4 font-medium">
+                          ₦{product.price?.toLocaleString()}
+                        </td>
+                        <td className="py-3 px-4">
+                          <span
+                            className={`font-medium ${
+                              product.stock === 0
+                                ? "text-red-400"
+                                : product.stock <= 10
+                                ? "text-yellow-400"
+                                : "text-green-400"
+                            }`}
+                          >
+                            {product.stock}
+                          </span>
+                        </td>
+                        <td className="py-3 px-4 hidden md:table-cell">
+                          <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${statusColor}`}>
+                            {derivedStatus}
+                          </span>
+                        </td>
+                        <td className="py-3 px-4">
+                          <div className="flex items-center justify-end gap-1">
+                            <button
+                              onClick={() => handleView(product)}
+                              className="p-1.5 rounded-md hover:bg-white/10 transition opacity-70 hover:opacity-100"
+                              title="View"
+                            >
+                              <Eye size={15} />
+                            </button>
+                            <button
+                              onClick={() => setDeleteTarget(product)}
+                              className="p-1.5 rounded-md hover:bg-red-500/20 transition opacity-70 hover:opacity-100 text-red-400"
+                              title="Delete"
+                            >
+                              <Trash2 size={15} />
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    );
+                  })}
+                {!loading && !error && filteredProducts.length === 0 && (
                   <tr>
                     <td colSpan={6} className="py-10 text-center opacity-50">
                       No products found.
@@ -259,35 +303,57 @@ export default function ProductsPage() {
       </div>
 
       {/* ========== MODALS ========== */}
-      <ProductViewModal product={viewProduct} onClose={() => setViewProduct(null)} />
+      <ProductViewModal
+        product={selectedProduct || viewProduct}
+        onClose={() => {
+          setViewProduct(null);
+          dispatch(clearSelectedProduct());
+        }}
+      />
 
-      {(editProduct || showCreate) && (
-        <ProductFormModal
-          product={editProduct}
-          onClose={() => { setEditProduct(null); setShowCreate(false); }}
-          onSave={handleSave}
-        />
+      {/* Delete confirmation modal */}
+      {deleteTarget && (
+        <div
+          className="fixed inset-0 z-200 bg-black/60 backdrop-blur-sm flex items-center justify-center"
+          onClick={() => setDeleteTarget(null)}
+        >
+          <div
+            className="bg-[#0a2742] border border-white/10 rounded-2xl p-6 max-w-sm w-full mx-4"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex items-center gap-3 mb-4">
+              <AlertCircle className="w-6 h-6 text-red-400" />
+              <h3 className="text-lg font-bold">Delete Product</h3>
+            </div>
+            <p className="text-sm text-white/70 mb-6">
+              Are you sure you want to delete{" "}
+              <strong>{deleteTarget.name}</strong>? This action cannot be undone.
+            </p>
+            <div className="flex justify-end gap-3">
+              <button
+                onClick={() => setDeleteTarget(null)}
+                className="px-4 py-2 rounded-lg bg-white/10 hover:bg-white/20 text-sm transition"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleDelete}
+                className="px-4 py-2 rounded-lg bg-red-500/20 hover:bg-red-500/30 text-red-400 text-sm transition"
+              >
+                Delete
+              </button>
+            </div>
+          </div>
+        </div>
       )}
 
-      {deleteTarget && (
-  <div className="fixed inset-0 z-150 bg-black/60 backdrop-blur-sm flex items-center justify-center" onClick={() => setDeleteTarget(null)}>
-    <div className="bg-[#0a2742] border border-white/10 rounded-2xl p-6 max-w-sm w-full mx-4" onClick={(e) => e.stopPropagation()}>
-      <div className="flex items-center gap-3 mb-4">
-        <AlertCircle className="w-6 h-6 text-red-400" />
-        <h3 className="text-lg font-bold">Delete Product</h3>
-      </div>
-      <p className="text-sm text-white/70 mb-6">
-        Are you sure you want to delete <strong>{deleteTarget.name}</strong>? This action cannot be undone.
-      </p>
-      <div className="flex justify-end gap-3">
-        <button onClick={() => setDeleteTarget(null)} className="px-4 py-2 rounded-lg bg-white/10 hover:bg-white/20 text-sm transition">Cancel</button>
-        <button onClick={handleDelete} className="px-4 py-2 rounded-lg bg-red-500/20 hover:bg-red-500/30 text-red-400 text-sm transition">Delete</button>
-      </div>
-    </div>
-  </div>
-)}
+      {/* Delete error toast */}
+      {deleteError && (
+        <div className="fixed bottom-4 right-4 bg-red-500/90 text-white px-4 py-2 rounded-lg text-sm z-50">
+          {deleteError}
+        </div>
+      )}
 
-      {/* ==================== SCOPED STYLES ==================== */}
       <style jsx>{`
         .products-wrapper {
           background: linear-gradient(135deg, #0a2742 0%, #142f52 50%, #1e4b7c 100%);

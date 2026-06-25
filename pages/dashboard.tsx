@@ -24,6 +24,9 @@ import {
   Plus,
   FileText,
   Settings,
+  Layers,
+  UserCheck,
+  CreditCard,
 } from "lucide-react";
 import StatsCard from "@/components/StatusCard";
 import { Card } from "@/components/Card";
@@ -71,6 +74,8 @@ export default function Dashboard() {
   const revenue = data?.orders?.grossMerchandiseValue ?? 0;
   const recentOrders = data?.recentOrders ?? [];
   const recentUsers = data?.recentMarketplaceUsers ?? [];
+  const recentProducts = data?.recentProducts ?? [];
+  const subscriptions = data?.subscriptions;
 
   return (
     <div className="dashboard-wrapper">
@@ -102,7 +107,7 @@ export default function Dashboard() {
           </div>
         </div>
 
-        {/* ========== STATS CARDS (real data) ========== */}
+        {/* ========== MAIN STATS CARDS ========== */}
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
           <StatsCard
             title="Total Products"
@@ -130,35 +135,39 @@ export default function Dashboard() {
           />
         </div>
 
-        {/* ========== QUICK ACTIONS ========== */}
-        <Card className="glass-card p-6 rounded-2xl border border-white/10">
-          <h2 className="text-lg font-semibold mb-4 text-center">
-            Quick Actions
-          </h2>
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-            {[
-              { label: "Add Product", href: "/products/new", icon: Plus },
-              { label: "View Orders", href: "/orders", icon: FileText },
-              { label: "Users", href: "/users", icon: Users },
-              { label: "Settings", href: "/settings", icon: Settings },
-            ].map((action) => (
-              <Link
-                key={action.label}
-                href={action.href}
-                className="flex flex-col items-center justify-center gap-2 p-4 rounded-xl bg-white/5 border border-white/10 hover:bg-white/10 transition opacity-80 hover:opacity-100"
-              >
-                <action.icon size={20} />
-                <span className="text-xs font-medium text-center">
-                  {action.label}
-                </span>
-              </Link>
-            ))}
+        {/* ========== SUBSCRIPTION STATS (real data) ========== */}
+        {subscriptions && (
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+            <StatsCard
+              title="Active Subs"
+              value={subscriptions.active}
+              className="bg-white/5 border border-white/10"
+              icon={<UserCheck className="w-4 h-4 text-green-400" />}
+            />
+            <StatsCard
+              title="Vendor"
+              value={subscriptions.vendor}
+              className="bg-white/5 border border-white/10"
+              icon={<Layers className="w-4 h-4 text-blue-400" />}
+            />
+            <StatsCard
+              title="Business"
+              value={subscriptions.business}
+              className="bg-white/5 border border-white/10"
+              icon={<Layers className="w-4 h-4 text-purple-400" />}
+            />
+            <StatsCard
+              title="Monthly / Yearly"
+              value={`${subscriptions.monthly} / ${subscriptions.yearly}`}
+              className="bg-white/5 border border-white/10"
+              icon={<CreditCard className="w-4 h-4 text-orange-400" />}
+            />
           </div>
-        </Card>
+        )}
 
-        {/* ========== MAIN GRID ========== */}
+        {/* ========== CHARTS (mock data) ========== */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          {/* Revenue Overview (chart mock data kept as-is) */}
+          {/* Revenue Overview */}
           <Card className="lg:col-span-2 glass-card p-6 rounded-2xl border border-white/10">
             <div className="flex items-center justify-between mb-6">
               <div>
@@ -210,7 +219,7 @@ export default function Dashboard() {
             </div>
           </Card>
 
-          {/* Order Status (mock) */}
+          {/* Order Status */}
           <Card className="glass-card p-6 rounded-2xl border border-white/10">
             <h2 className="text-lg font-semibold mb-6">Order Status</h2>
             <div className="h-[300px]">
@@ -251,9 +260,9 @@ export default function Dashboard() {
           </Card>
         </div>
 
-        {/* ========== SECOND GRID ========== */}
+        {/* ========== SECOND GRID (recent data) ========== */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          {/* Recent Orders (real data) */}
+          {/* Recent Orders */}
           <Card className="lg:col-span-2 glass-card p-6 rounded-2xl border border-white/10">
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-lg font-semibold">Recent Orders</h2>
@@ -318,8 +327,7 @@ export default function Dashboard() {
             )}
           </Card>
 
-          {/* Recent Users (real data from dashboard overview) */}
-          {/* Recent Users (real data from dashboard overview) */}
+          {/* Recent Users */}
           <Card className="glass-card p-6 rounded-2xl border border-white/10">
             <h2 className="text-lg font-semibold mb-4">Recent Users</h2>
             {loading && (
@@ -357,6 +365,54 @@ export default function Dashboard() {
             )}
           </Card>
         </div>
+
+        {/* ========== RECENT PRODUCTS (real data) ========== */}
+        <Card className="glass-card p-6 rounded-2xl border border-white/10">
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-lg font-semibold">Recent Products</h2>
+            <Link
+              href="/products"
+              className="text-sm text-[#29b6d8] hover:underline"
+            >
+              View all
+            </Link>
+          </div>
+          {loading && (
+            <p className="text-sm opacity-60 text-center py-4">
+              Loading products...
+            </p>
+          )}
+          {error && (
+            <p className="text-sm text-red-400 text-center py-4">{error}</p>
+          )}
+          {!loading && !error && recentProducts.length === 0 && (
+            <p className="text-sm opacity-60 text-center py-4">
+              No recent products.
+            </p>
+          )}
+          {!loading && !error && recentProducts.length > 0 && (
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+              {recentProducts.slice(0, 4).map((product: any, idx: number) => (
+                <div
+                  key={product.id || idx}
+                  className="p-4 rounded-xl bg-white/5 border border-white/5 hover:bg-white/10 transition text-sm"
+                >
+                  {product.images?.[0] && (
+                    <img
+                      src={product.images[0]}
+                      alt={product.name}
+                      className="w-full h-32 object-cover rounded-lg mb-2"
+                    />
+                  )}
+                  <p className="font-medium truncate">{product.name}</p>
+                  <p className="text-xs opacity-60">
+                    ₦{product.price?.toLocaleString()}
+                  </p>
+                </div>
+              ))}
+            </div>
+          )}
+        </Card>
       </div>
 
       <style jsx>{`

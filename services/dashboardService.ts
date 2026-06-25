@@ -5,26 +5,63 @@ export interface DashboardOverviewResponse {
   isSuccessful: boolean;
   message: string;
   data: {
+    generatedAtUtc?: string;
+    fromUtc?: string;
+    toUtc?: string;
+
     marketplaceUsers: {
       total: number;
       active: number;
       inactive: number;
+      deleted?: number;
+      createdInRange?: number;
       free: number;
       vendor: number;
       business: number;
     };
-    products: { total: number; active: number; outOfStock: number };
+
+    products: {
+      total: number;
+      active: number;
+      deleted?: number;
+      outOfStock: number;
+      flashDeals?: number;
+      distressSales?: number;
+      createdInRange?: number;
+    };
+
     orders: {
       total: number;
+      createdInRange?: number;
       grossMerchandiseValue: number;
+      grossMerchandiseValueInRange?: number;
+      transactionFeesInRange?: number;
       averageOrderValueInRange: number;
     };
+
+    subscriptions?: {
+      current: number;
+      active: number;
+      pendingPayment?: number;
+      pastDue?: number;
+      cancelling?: number;
+      expired?: number;
+      cancelled?: number;
+      monthly: number;
+      yearly: number;
+      vendor: number;
+      business: number;
+      createdInRange?: number;
+    };
+
     recentMarketplaceUsers: Array<{
       guid: string;
       fullName: string;
       email: string;
       subscriptionPlan: string;
     }>;
+
+    recentProducts: any[];       // shape unknown from README – adjust as needed
     recentOrders: Array<{
       id: string;
       customerName: string;
@@ -35,6 +72,7 @@ export interface DashboardOverviewResponse {
     }>;
   };
 }
+
 export async function getDashboardOverview(params?: {
   FromUtc?: string;
   ToUtc?: string;
@@ -48,15 +86,12 @@ export async function getDashboardOverview(params?: {
   const qs = query.toString();
   try {
     const data = await request<DashboardOverviewResponse>(
-      `/AdminDashboard/Overview${qs ? `?${qs}` : ""}`,
+      `/AdminDashboard/Overview${qs ? `?${qs}` : ""}`
     );
     console.log("[DashboardService] ✅ Overview loaded.");
     return data;
   } catch (error: any) {
-    console.error(
-      "[DashboardService] ❌ Failed to load overview:",
-      error.message,
-    );
+    console.error("[DashboardService] ❌ Failed to load overview:", error.message);
     throw error;
   }
 }
