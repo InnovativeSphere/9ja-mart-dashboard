@@ -29,7 +29,7 @@ export interface PlansListResponse {
 
 export async function getPlans(): Promise<PlansListResponse> {
   try {
-    const data = await request<PlansListResponse>("/SubscriptionPlan");
+    const data = await request<PlansListResponse>("/AdminSubscriptionPlan");
     console.log("[PlansService] ✅ Plans loaded.");
     return data;
   } catch (error: any) {
@@ -40,7 +40,7 @@ export async function getPlans(): Promise<PlansListResponse> {
 
 export async function createPlan(payload: CreatePlanPayload): Promise<any> {
   try {
-    const data = await request("/SubscriptionPlan", {
+    const data = await request("/AdminSubscriptionPlan", {
       method: "POST",
       body: JSON.stringify(payload),
     });
@@ -70,7 +70,7 @@ export async function updatePlan(
       featureSummary: updates.featureSummary ?? [""],
     };
 
-    const data = await request("/SubscriptionPlan", {
+    const data = await request("/AdminSubscriptionPlan", {
       method: "PUT",
       body: JSON.stringify(payload),
     });
